@@ -1,18 +1,45 @@
 import { useState } from "react";
+import personService from "../services/persons";
 
 const PersonForm = ({ persons, setPersons }) => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
 
+  const replaceNumber = (personObject) => {
+    const existingPerson = persons.find(
+      (person) => person.name === personObject.name
+    );
+    if (
+      existingPerson &&
+      window.confirm(
+        `${existingPerson.name} is already added to phonebook, replace the old number with a new one?`
+      )
+    ) {
+      personService
+        .update(existingPerson.id, personObject)
+        .then((returnedPerson) => {
+          setPersons(
+            persons.map((person) =>
+              person.id !== existingPerson.id ? person : returnedPerson
+            )
+          );
+        });
+      setNewName("");
+      setNewNumber("");
+    }
+  };
+
   const addPerson = (event) => {
     event.preventDefault();
     const personObject = { name: newName, number: newNumber };
     if (persons.some((person) => person.name === personObject.name)) {
-      alert(`${personObject.name} is already added to phonebook`);
+      replaceNumber(personObject);
     } else {
-      setPersons(persons.concat(personObject));
+      personService.create(personObject).then((initialPerson) => {
+        setPersons(persons.concat(initialPerson));
+      });
+      setNewName("");
     }
-    setNewName("");
   };
 
   const handlePersonChange = (event) => {
@@ -20,7 +47,6 @@ const PersonForm = ({ persons, setPersons }) => {
   };
 
   const handleNumberChange = (event) => {
-    console.log(event.target.value);
     setNewNumber(event.target.value);
   };
 
