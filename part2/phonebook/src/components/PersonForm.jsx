@@ -1,7 +1,12 @@
 import { useState } from "react";
 import personService from "../services/persons";
 
-const PersonForm = ({ persons, setPersons }) => {
+const PersonForm = ({
+  persons,
+  setPersons,
+  setNotificationMsg,
+  setNotificationType,
+}) => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
 
@@ -23,6 +28,19 @@ const PersonForm = ({ persons, setPersons }) => {
               person.id !== existingPerson.id ? person : returnedPerson
             )
           );
+        })
+        .catch((error) => {
+          setNotificationType("error");
+          setNotificationMsg(
+            `Information of ${existingPerson.name} has already been removed from server`
+          );
+          setTimeout(() => {
+            setNotificationMsg(null);
+            setNotificationType(null);
+          }, 5000);
+          setPersons(
+            persons.filter((person) => person.id !== existingPerson.id)
+          );
         });
       setNewName("");
       setNewNumber("");
@@ -40,6 +58,12 @@ const PersonForm = ({ persons, setPersons }) => {
       });
       setNewName("");
     }
+    setNotificationType("notification");
+    setNotificationMsg(`Added ${personObject.name}`);
+    setTimeout(() => {
+      setNotificationMsg(null);
+      setNotificationType(null);
+    }, 5000);
   };
 
   const handlePersonChange = (event) => {
