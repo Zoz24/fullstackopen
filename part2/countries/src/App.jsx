@@ -1,32 +1,62 @@
-import { useState } from 'react'
-import axios from 'axios'
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
-function App() {
+const App = () => {
+  const baseUrl = "https://studies.cs.helsinki.fi/restcountries/";
 
-  const baseUrl = "https://studies.cs.helsinki.fi/restcountries/"
+  const [countriesAll, setCountriesAll] = useState([]);
+  const [countries, setCountries] = useState([]);
+  const [message, setMessage] = useState("");
 
-  const [countries, setCountries] = useState([])
+  useEffect(() => {
+    axios
+      .get(baseUrl + "api/all")
+      .then((response) => {
+        setCountriesAll(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching countries:", error);
+      });
+  }, []);
 
-  const getCountries = () => {
-    const url = `${baseUrl}/api/all`
-    axios.get(url).then(response => {
-      if (response.data.length > 10) {
-        console.log("Too many matches, specify another filter")
-      }
-      if (response.data.length < 10 && response.data.length > 1) {
-        setCountries(response.data)
-      }
-    })
-  }
+  const getCountries = (event) => {
+    const filterText = event.target.value.toLowerCase();
+
+    // If the input is empty, clear countries and message
+    if (!filterText) {
+      setCountries([]);
+      setMessage("");
+      return; // Exit the function early
+    }
+    const filteredCountries = countriesAll.filter(
+      (country) =>
+        typeof country.name.common === "string" &&
+        country.name.common.toLowerCase().includes(filterText)
+    );
+
+    if (filteredCountries.length > 10) {
+      setMessage("Too many matches, specify another filter");
+      setCountries([]); // Clear the displayed countries if there are too many matches
+    } else if (filteredCountries.length <= 10 && filteredCountries.length > 0) {
+      setMessage("");
+      setCountries(filteredCountries);
+    } else {
+      setMessage("No matches found");
+      setCountries([]); // Clear the displayed countries if no matches
+    }
+  };
 
   return (
     <>
-    <div>find countries <input onChange={getCountries} /></div>
-    {countries.map(country => (
-        <div key={country.alpha2Code}>{country.name}</div>
+      <div>
+        find countries <input onChange={getCountries} />
+      </div>
+      {message && <div>{message}</div>}
+      {countries.map((country) => (
+        <div key={country.cca2}>{country.name.common}</div>
       ))}
     </>
-  )
-}
+  );
+};
 
-export default App
+export default App;
