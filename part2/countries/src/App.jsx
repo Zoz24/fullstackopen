@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import CountryDetails from "./components/CountryDetails";
 
 const App = () => {
   const baseUrl = "https://studies.cs.helsinki.fi/restcountries/";
@@ -7,6 +8,7 @@ const App = () => {
   const [countriesAll, setCountriesAll] = useState([]);
   const [countries, setCountries] = useState([]);
   const [message, setMessage] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState(null);
 
   useEffect(() => {
     axios
@@ -37,7 +39,10 @@ const App = () => {
     if (filteredCountries.length > 10) {
       setMessage("Too many matches, specify another filter");
       setCountries([]); // Clear the displayed countries if there are too many matches
-    } else if (filteredCountries.length <= 10 && filteredCountries.length > 0) {
+    } else if (filteredCountries.length === 1) {
+      setMessage("");
+      setCountries(filteredCountries);
+    } else if (filteredCountries.length <= 10 && filteredCountries.length > 1) {
       setMessage("");
       setCountries(filteredCountries);
     } else {
@@ -52,9 +57,23 @@ const App = () => {
         find countries <input onChange={getCountries} />
       </div>
       {message && <div>{message}</div>}
-      {countries.map((country) => (
-        <div key={country.cca2}>{country.name.common}</div>
-      ))}
+      {countries.map((country) => {
+        if (countries.length === 1) {
+          return <CountryDetails key={country.cca2} country={country} />;
+        } else {
+          return (
+            <div key={country.cca2}>
+              {country.name.common}
+              <button onClick={() => setSelectedCountry(country)}>
+                Show details
+              </button>
+            </div>
+          );
+        }
+      })}
+      {selectedCountry && (
+        <CountryDetails key={selectedCountry.cca2} country={selectedCountry} />
+      )}
     </>
   );
 };
