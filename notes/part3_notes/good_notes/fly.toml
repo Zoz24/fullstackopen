@@ -9,10 +9,10 @@ primary_region = "dfw"
 [build]
 
 [env]
-  PORT = "3000" # the port your app listens on
+  PORT = "3001" # the port your app listens on
 
 [http_service]
-  internal_port = 3000 # the port your app listens on
+  internal_port = 3001 # the port your app listens on
   force_https = true
   auto_stop_machines = true
   auto_start_machines = true
