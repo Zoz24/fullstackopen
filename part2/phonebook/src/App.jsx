@@ -19,7 +19,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification message={notificationMsg} />
+      <Notification message={notificationMsg} type={notificationType} />
       <Filter persons={persons} setPersons={setPersons} />
       <h2>add a new</h2>
       <PersonForm

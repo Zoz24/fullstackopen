@@ -53,17 +53,28 @@ const PersonForm = ({
     if (persons.some((person) => person.name === personObject.name)) {
       replaceNumber(personObject);
     } else {
-      personService.create(personObject).then((initialPerson) => {
-        setPersons(persons.concat(initialPerson));
-      });
+      personService
+        .create(personObject)
+        .then((initialPerson) => {
+          setPersons(persons.concat(initialPerson));
+          setNotificationType("notification");
+          setNotificationMsg(`Added ${personObject.name}`);
+          setTimeout(() => {
+            setNotificationMsg(null);
+            setNotificationType(null);
+          }, 5000);
+        })
+        .catch((error) => {
+          setNotificationType("error");
+          setNotificationMsg(error.response.data.error);
+          setTimeout(() => {
+            setNotificationMsg(null);
+            setNotificationType(null);
+          }, 5000);
+        });
       setNewName("");
+      setNewNumber("");
     }
-    setNotificationType("notification");
-    setNotificationMsg(`Added ${personObject.name}`);
-    setTimeout(() => {
-      setNotificationMsg(null);
-      setNotificationType(null);
-    }, 5000);
   };
 
   const handlePersonChange = (event) => {
