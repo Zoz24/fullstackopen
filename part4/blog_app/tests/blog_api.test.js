@@ -57,6 +57,26 @@ describe('when there is initially some blogs saved', () => {
     }
     await api.post('/api/blogs').send(newBlog).expect(400)
   })
+
+  test('a blog can be deleted', async () => {
+    const response = await api.get('/api/blogs')
+    await api.delete(`/api/blogs/${response.body[0].id}`).expect(204)
+    const blogsAtEnd = await api.get('/api/blogs')
+    expect(blogsAtEnd.body).toHaveLength(listHelper.blogs.length - 1)
+  })
+
+  test('likes of a blog can be updated', async () => {
+    const response = await api.get('/api/blogs')
+    const updatedBlog = {
+      likes: 100,
+    }
+    await api
+      .put(`/api/blogs/${response.body[0].id}/likes`)
+      .send(updatedBlog)
+      .expect(200)
+    const blogsAtEnd = await api.get('/api/blogs')
+    expect(blogsAtEnd.body[0].likes).toBe(100)
+  })
 })
 
 afterAll(async () => {
