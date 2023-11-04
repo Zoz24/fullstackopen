@@ -1,0 +1,10 @@
+post http://localhost:3001/api/login
+Content-Type: application/json
+
+
+# user name and password needs to be in the body of the request
+# {
+#   "username": "username",
+#   "password": "password"
+# }
+
