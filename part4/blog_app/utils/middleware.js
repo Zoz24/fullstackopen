@@ -37,17 +37,29 @@ const tokenExtractor = (request, response, next) => {
   const authorization = request.get('authorization')
   if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
     request.token = authorization.substring(7)
+  } else {
+    if (request.method !== 'GET') {
+      console.log('Extracted Token:', request.token) // For debugging purposes
+      return response.status(401).json({ error: 'token missing or invalid' })
+    }
   }
   next()
 }
 
 const userExtractor = async (request, response, next) => {
-  // Extract the user from the request token and add it to the request object
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: 'token invalid' })
+  // Skip JWT verification for GET requests
+  if (request.method !== 'GET') {
+    // Extract the user from the request token and add it to the request object
+    try {
+      const decodedToken = jwt.verify(request.token, process.env.SECRET)
+      if (!decodedToken.id) {
+        return response.status(401).json({ error: 'token invalid' })
+      }
+      request.user = await User.findById(decodedToken.id)
+    } catch (error) {
+      return response.status(401).json({ error: error.message })
+    }
   }
-  request.user = await User.findById(decodedToken.id)
   next()
 }
 
