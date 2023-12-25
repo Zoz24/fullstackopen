@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
 import Blog from "./components/Blog";
 import Notification from "./components/Notification";
+import BlogForm from "./components/BlogForm";
+import Toggleable from "./components/Togglable";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
-  const [blogTitle, setBlogTitle] = useState("");
-  const [blogUrl, setBlogUrl] = useState("");
+  // const [blogTitle, setBlogTitle] = useState("");
+  // const [blogUrl, setBlogUrl] = useState("");
+  // const [blogAuthor, setBlogAuthor] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
@@ -59,24 +62,19 @@ const App = () => {
     </div>
   );
 
+  const addBlog = async (blogObject) => {
+    const returnedBlog = await blogService.create(blogObject);
+    setBlogs(blogs.concat(returnedBlog));
+    setNotificationMessage(`A new blog '${blogObject.title}' added`);
+    setTimeout(() => {
+      setNotificationMessage(null);
+    }, 5000);
+  };
+
   const blogForm = () => (
-    <form onSubmit={addBlog}>
-      <div>
-        <label>Title:</label>
-        <input
-          value={blogTitle}
-          onChange={({ target }) => setBlogTitle(target.value)}
-        />
-      </div>
-      <div>
-        <label>URL:</label>
-        <input
-          value={blogUrl}
-          onChange={({ target }) => setBlogUrl(target.value)}
-        />
-      </div>
-      <button type="submit">save</button>
-    </form>
+    <Toggleable buttonLabel="new blog">
+      <BlogForm createBlog={addBlog} />
+    </Toggleable>
   );
 
   const handleLogin = async (event) => {
@@ -106,36 +104,11 @@ const App = () => {
     window.localStorage.removeItem("loggedBlogappUser");
   };
 
-  const addBlog = async (event) => {
-    event.preventDefault();
-    try {
-      const blogObject = {
-        title: blogTitle,
-        url: blogUrl,
-      };
-
-      const returnedBlog = await blogService.create(blogObject);
-      setBlogs(blogs.concat(returnedBlog));
-      setNotificationMessage(`A new blog '${blogTitle}' added`);
-      setTimeout(() => {
-        setNotificationMessage(null);
-      }, 5000);
-      setBlogTitle("");
-      setBlogUrl("");
-    } catch (exception) {
-      console.error(exception);
-      setErrorMessage("Error adding blog");
-      setTimeout(() => {
-        setErrorMessage(null);
-      }, 5000);
-    }
-  };
-
   return (
     <div>
       {!user && loginForm()}
       {user && blogList()}
-      {user && blogForm()}
+      {user && <div>{blogForm()}</div>}
     </div>
   );
 };
