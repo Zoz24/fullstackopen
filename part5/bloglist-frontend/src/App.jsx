@@ -2,15 +2,13 @@ import { useState, useEffect } from "react";
 import Blog from "./components/Blog";
 import Notification from "./components/Notification";
 import BlogForm from "./components/BlogForm";
+import LoginForm from "./components/LoginForm";
 import Toggleable from "./components/Togglable";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
-  // const [blogTitle, setBlogTitle] = useState("");
-  // const [blogUrl, setBlogUrl] = useState("");
-  // const [blogAuthor, setBlogAuthor] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
@@ -22,31 +20,15 @@ const App = () => {
   }, []);
 
   const loginForm = () => (
-    <div>
-      <h2>Log in to application</h2>
-      <Notification message={errorMessage} />
-      <form onSubmit={handleLogin}>
-        <div>
-          username
-          <input
-            type="text"
-            value={username}
-            name="Username"
-            onChange={({ target }) => setUsername(target.value)}
-          />
-        </div>
-        <div>
-          password
-          <input
-            type="password"
-            value={password}
-            name="Password"
-            onChange={({ target }) => setPassword(target.value)}
-          />
-        </div>
-        <button type="submit">login</button>
-      </form>
-    </div>
+    <Toggleable buttonLabel="login">
+      <LoginForm
+        handleLogin={handleLogin}
+        username={username}
+        password={password}
+        setUsername={setUsername}
+        setPassword={setPassword}
+      />
+    </Toggleable>
   );
 
   const blogList = () => (
