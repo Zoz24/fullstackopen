@@ -17,7 +17,7 @@ const App = () => {
 
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
-  }, []);
+  }, [blogs]);
 
   const loginForm = () => (
     <Toggleable buttonLabel="login">
@@ -38,9 +38,16 @@ const App = () => {
       <button onClick={handleLogout}>logout</button>
       <Notification message={errorMessage} />
       <Notification message={notificationMessage} />
-      {blogs.map((blog) => (
-        <Blog key={blog.id} blog={blog} />
-      ))}
+      {blogs
+        .sort((a, b) => b.likes - a.likes)
+        .map((blog) => (
+          <Blog
+            key={blog.id}
+            blog={blog}
+            updateBlog={updateBlog}
+            removeBlog={removeBlog}
+          />
+        ))}
     </div>
   );
 
@@ -48,6 +55,24 @@ const App = () => {
     const returnedBlog = await blogService.create(blogObject);
     setBlogs(blogs.concat(returnedBlog));
     setNotificationMessage(`A new blog '${blogObject.title}' added`);
+    setTimeout(() => {
+      setNotificationMessage(null);
+    }, 5000);
+  };
+
+  const updateBlog = async (id, blogObject) => {
+    const returnedBlog = await blogService.update(id, blogObject);
+    setBlogs(blogs.map((blog) => (blog.id !== id ? blog : returnedBlog)));
+    setNotificationMessage(`Blog '${blogObject.title}' updated`);
+    setTimeout(() => {
+      setNotificationMessage(null);
+    }, 5000);
+  };
+
+  const removeBlog = async (id) => {
+    await blogService.remove(id);
+    setBlogs(blogs.filter((blog) => blog.id !== id));
+    setNotificationMessage(`Blog removed`);
     setTimeout(() => {
       setNotificationMessage(null);
     }, 5000);

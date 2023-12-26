@@ -13,14 +13,29 @@ const getAll = () => {
 };
 
 const create = async (newObject) => {
-  // console.log("Token during creating:", token); // For debugging purposes
-  // console.log("newObject:", newObject); // For debugging purposes
   const config = {
     headers: { Authorization: token },
   };
   const response = await axios.post(baseUrl, newObject, config);
-  // console.log("response.data:", response.data); // For debugging purposes
   return response.data;
 };
 
-export default { getAll, setToken, create };
+const update = async (id, newObject) => {
+  const config = {
+    headers: { Authorization: token },
+  };
+  const request = axios.put(`${baseUrl}/${id}`, newObject, config);
+  const response = await request;
+  return response.data;
+};
+
+const remove = async (id) => {
+  const config = {
+    headers: { Authorization: token },
+  };
+  const request = axios.delete(`${baseUrl}/${id}`, config);
+  const response = await request;
+  return response.data;
+};
+
+export default { getAll, setToken, create, update, remove };
